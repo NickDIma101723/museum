@@ -5,14 +5,17 @@ import { gsap } from "gsap";
 import Lenis from "@studio-freight/lenis";
 import Navbar from "@/components/Navbar";
 import GalleryItem from "@/components/GalleryItem";
+import WaveLoading from "@/components/WaveLoading";
+
 
 export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const leftSidebarRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLDivElement>(null);
   const line1Ref = useRef<HTMLDivElement>(null);
-  const line2Ref = useRef<HTMLDivElement>(null);
   const line3Ref = useRef<HTMLDivElement>(null);
   const verticalLinesRef = useRef<(HTMLDivElement | null)[]>([]);
   const rightSidebarRef = useRef<HTMLDivElement>(null);
@@ -29,18 +32,13 @@ export default function Home() {
 
   useEffect(() => {
     if (isMenuOpen) {
-      // Animate hamburger to X
+      // Animate 2-line hamburger to X
       gsap.to(line1Ref.current, {
         rotation: 45,
         top: '50%',
         y: '-50%',
         duration: 0.4,
         ease: "power3.inOut"
-      });
-      gsap.to(line2Ref.current, {
-        opacity: 0,
-        duration: 0.2,
-        ease: "power2.inOut"
       });
       gsap.to(line3Ref.current, {
         rotation: -45,
@@ -50,19 +48,13 @@ export default function Home() {
         ease: "power3.inOut"
       });
     } else {
-      // Animate X back to hamburger
+      // Animate X back to 2-line hamburger
       gsap.to(line1Ref.current, {
         rotation: 0,
         top: '0',
         y: '0%',
         duration: 0.4,
         ease: "power3.inOut"
-      });
-      gsap.to(line2Ref.current, {
-        opacity: 1,
-        duration: 0.2,
-        delay: 0.1,
-        ease: "power2.inOut"
       });
       gsap.to(line3Ref.current, {
         rotation: 0,
@@ -101,116 +93,147 @@ export default function Home() {
   }, [mounted]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || isLoading) return;
     
     const ctx = gsap.context(() => {
-      // Hero text animations
+      // Set initial states - everything hidden
+      gsap.set([
+        heroTitleRef.current?.querySelectorAll('h1'),
+        heroDescRef.current?.querySelector('p'),
+        leftSidebarRef.current,
+        rightSidebarRef.current,
+        hamburgerRef.current,
+        topLineRef.current,
+        bottomLineRef.current,
+        ...verticalLinesRef.current.filter(Boolean)
+      ], {
+        opacity: 0
+      });
+      
+      const startDelay = 0.3;
+      
+      // Hero title animation - slide up from below
       if (heroTitleRef.current) {
-        gsap.from(heroTitleRef.current, {
-          opacity: 0,
-          y: 50,
-          duration: 1,
-          delay: 1.5,
+        const titleLines = heroTitleRef.current.querySelectorAll('h1');
+        
+        gsap.set(titleLines, { y: 100, opacity: 0 });
+        gsap.to(titleLines, {
+          y: 0,
+          opacity: 1,
+          duration: 1.4,
+          stagger: 0.25,
+          delay: startDelay,
           ease: "power3.out"
         });
       }
-
+      
+      // Description animation - fade in with slide up
       if (heroDescRef.current) {
-        gsap.from(heroDescRef.current, {
-          opacity: 0,
-          y: 30,
-          duration: 1,
-          delay: 1.8,
-          ease: "power3.out"
-        });
-      }
-
-      // Left sidebar animation
-      gsap.from(leftSidebarRef.current, {
-        x: -100,
-        opacity: 0,
-        duration: 1,
-        ease: "power2.out"
-      });
-
-      // Hamburger menu icon animation
-      gsap.from(hamburgerRef.current, {
-        opacity: 0,
-        scale: 0.5,
-        duration: 0.5,
-        delay: 0.8,
-        ease: "power2.out"
-      });
-
-      // Hamburger lines animation
-      gsap.from(line1Ref.current, {
-        width: 0,
-        duration: 0.3,
-        delay: 1,
-        ease: "power2.out"
-      });
-
-      gsap.from(line2Ref.current, {
-        width: 0,
-        duration: 0.3,
-        delay: 1.1,
-        ease: "power2.out"
-      });
-
-      gsap.from(line3Ref.current, {
-        width: 0,
-        duration: 0.3,
-        delay: 1.2,
-        ease: "power2.out"
-      });
-
-      // Vertical lines animation
-      verticalLinesRef.current.forEach((line, index) => {
-        if (line) {
-          gsap.from(line, {
-            scaleY: 0,
-            opacity: 0,
-            duration: 1.2,
-            delay: 0.3 + index * 0.1,
-            ease: "expo.out",
-            transformOrigin: "top"
+        const text = heroDescRef.current.querySelector('p');
+        
+        if (text) {
+          gsap.set(text, { y: 40, opacity: 0 });
+          gsap.to(text, {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            delay: startDelay + 1,
+            ease: "power2.out"
           });
         }
-      });
-      gsap.from(rightSidebarRef.current, {
-        x: 100,
-        opacity: 0,
-        duration: 1,
-        delay: 0.1,
+      }
+
+      // Sidebars animation
+      gsap.to(leftSidebarRef.current, {
+        opacity: 1,
+        duration: 0.8,
+        delay: startDelay + 0.2,
         ease: "power2.out"
       });
 
-      // Top horizontal line animation
-      gsap.from(topLineRef.current, {
-        scaleX: 0,
+      gsap.to(rightSidebarRef.current, {
+        opacity: 1,
+        duration: 0.8,
+        delay: startDelay + 0.3,
+        ease: "power2.out"
+      });
+
+      // Hamburger container animation
+      gsap.to(hamburgerRef.current, {
+        opacity: 1,
         duration: 0.6,
-        delay: 0.9,
+        delay: startDelay + 1,
+        ease: "power2.out"
+      });
+
+      // Hamburger lines - draw in with stagger
+      gsap.set([line1Ref.current, line3Ref.current], { scaleX: 0, opacity: 1 });
+      
+      gsap.to(line1Ref.current, {
+        scaleX: 1,
+        duration: 0.8,
+        delay: startDelay + 1.2,
+        ease: "power2.out",
+        transformOrigin: "left"
+      });
+      
+      gsap.to(line3Ref.current, {
+        scaleX: 1,
+        duration: 0.8,
+        delay: startDelay + 1.35,
         ease: "power2.out",
         transformOrigin: "right"
       });
 
-      // Bottom horizontal line animation
-      gsap.from(bottomLineRef.current, {
-        scaleX: 0,
-        duration: 0.6,
-        delay: 1,
+      // Vertical lines - grow from bottom to top with wave effect
+      verticalLinesRef.current.forEach((line, index) => {
+        if (line) {
+          gsap.set(line, { scaleY: 0, opacity: 1 });
+          gsap.to(line, {
+            scaleY: 1,
+            duration: 1.4,
+            delay: startDelay + 0.6 + index * 0.12,
+            ease: "power3.out",
+            transformOrigin: "bottom"
+          });
+        }
+      });
+
+      // Top horizontal line - draw from left to right
+      gsap.set(topLineRef.current, { scaleX: 0, opacity: 1 });
+      gsap.to(topLineRef.current, {
+        scaleX: 1,
+        duration: 1.2,
+        delay: startDelay + 1.4,
+        ease: "power2.out",
+        transformOrigin: "left"
+      });
+
+      // Bottom horizontal line - draw from right to left
+      gsap.set(bottomLineRef.current, { scaleX: 0, opacity: 1 });
+      gsap.to(bottomLineRef.current, {
+        scaleX: 1,
+        duration: 1.2,
+        delay: startDelay + 1.6,
         ease: "power2.out",
         transformOrigin: "right"
       });
     });
 
     return () => ctx.revert();
-  }, [mounted]);
+  }, [mounted, isLoading]);
 
   return (
-    <div className="relative min-h-screen">
-      {/* Navbar Component */}
-      <Navbar isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
+    <>
+      {/* Wave Loading Screen */}
+      {isLoading && <WaveLoading onComplete={() => setIsLoading(false)} />}
+      
+      {/* White background until loading completes */}
+      {isLoading && <div className="fixed inset-0 bg-white z-[9998]" />}
+      
+      <div className="relative min-h-screen">
+        {/* Navbar Component */}
+        <Navbar isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
 
       {/* Left sidebar */}
       <div
@@ -224,15 +247,11 @@ export default function Home() {
         >
           <button
             onClick={toggleMenu}
-            className="relative w-4 h-3 sm:w-5 sm:h-4 hover:opacity-70 transition-opacity"
+            className="relative w-4 h-3 sm:w-5 sm:h-3 hover:opacity-70 transition-opacity"
           >
             <div
               ref={line1Ref}
-              className="absolute w-full h-0.5 bg-black origin-center"
-            ></div>
-            <div
-              ref={line2Ref}
-              className="absolute w-full h-0.5 bg-black origin-center top-1/2 -translate-y-1/2"
+              className="absolute w-full h-0.5 bg-black origin-center top-0"
             ></div>
             <div
               ref={line3Ref}
@@ -289,46 +308,29 @@ export default function Home() {
 
       {/* Main content area */}
       <div className="ml-12 mr-12 sm:ml-16 sm:mr-16">
-        <div className="px-4 sm:px-8 lg:px-16">
-          {/* Hero Section with staggered text animation */}
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col justify-center px-6 md:px-12 lg:px-24">
-        <div ref={heroTitleRef} className="mb-8">
-          <h1 className="text-6xl md:text-7xl lg:text-9xl font-bold leading-[0.95] mb-8 bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent">
-            A MODERN MUSEUM
-          </h1>
-        </div>
-        
-        <div ref={heroDescRef}>
-          <p className="text-xl md:text-2xl lg:text-3xl text-gray-600 max-w-4xl leading-relaxed">
-            Exploring the intersection of art, culture, and innovation in contemporary society.
-          </p>
-        </div>
-      </section>
-
-      {/* Featured Films Section */}
-      <section className="py-20 px-6 md:px-12 lg:px-24">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-black">Featured Films</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-          <GalleryItem 
-            imageSrc="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=750&fit=crop"
-            title="The Journey"
-            description="A compelling story of discovery and transformation"
-          />
-          <GalleryItem 
-            imageSrc="https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=750&fit=crop"
-            title="Echoes"
-            description="Sound and silence in modern cinema"
-          />
-          <GalleryItem 
-            imageSrc="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&h=750&fit=crop"
-            title="Urban Dreams"
-            description="City life through a new lens"
-          />
+      <section className="min-h-screen flex flex-col justify-center px-12 md:px-20 lg:px-32">
+        <div ref={heroTitleRef} className="space-y-8">
+          <div className="overflow-hidden">
+            <h1 className="text-8xl md:text-9xl lg:text-[12rem] xl:text-[14rem] font-bold leading-[0.9] text-black">
+              A MODERN
+            </h1>
+          </div>
+          <div className="overflow-hidden">
+            <h1 className="text-8xl md:text-9xl lg:text-[12rem] xl:text-[14rem] font-bold leading-[0.9] text-black">
+              MUSEUM
+            </h1>
+          </div>
+          
+          <div ref={heroDescRef} className="pt-6">
+            <p className="text-xl md:text-2xl lg:text-3xl tracking-[0.3em] text-gray-500 uppercase">
+              EST. 2025
+            </p>
+          </div>
         </div>
       </section>
-        </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
