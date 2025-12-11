@@ -12,7 +12,6 @@ export default function WaveLoading({ onComplete }: WaveLoadingProps) {
   const textRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const [currentText, setCurrentText] = useState('');
   const [displayText, setDisplayText] = useState('');
   const [showCursor, setShowCursor] = useState(false);
 
@@ -57,7 +56,8 @@ export default function WaveLoading({ onComplete }: WaveLoadingProps) {
       // Wait then delete and type "A MODERN XXXX"
       .to({}, { duration: 2.0 })
       .call(() => {
-        let currentText = "IT'S LOADING";
+        const textToDelete = "IT'S LOADING";
+        let currentText = textToDelete;
         
         // Show cursor and delete all text
         setShowCursor(true);

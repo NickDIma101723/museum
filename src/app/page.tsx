@@ -5,7 +5,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "@studio-freight/lenis";
 import Navbar from "@/components/Navbar";
-import GalleryItem from "@/components/GalleryItem";
 import WaveLoading from "@/components/WaveLoading";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -82,9 +81,6 @@ export default function Home() {
   
   // Split image refs - three layers
   const splitImageContainerRef = useRef<HTMLDivElement>(null);
-  const imageTopRef = useRef<HTMLDivElement>(null);
-  const imageMiddleRef = useRef<HTMLDivElement>(null);
-  const imageBottomRef = useRef<HTMLDivElement>(null);
 
   // Enable scroll on home page
   useEffect(() => {

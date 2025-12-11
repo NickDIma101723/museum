@@ -2,14 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { Poppins } from "next/font/google";
 import Link from "next/link";
-
-const poppins = Poppins({
-  weight: ['300', '400', '500', '600'],
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 interface NavbarProps {
   isMenuOpen: boolean;

@@ -29,13 +29,11 @@ export default function Contact() {
   const contactFormRef = useRef<HTMLDivElement>(null);
   const contactInfoRef = useRef<HTMLDivElement>(null);
   const formInputsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const formTitleRef = useRef<HTMLDivElement>(null);
   const formHeaderRef = useRef<HTMLHeadingElement>(null);
   const formDescRef = useRef<HTMLParagraphElement>(null);
   const floatingContact1Ref = useRef<HTMLDivElement>(null);
   const floatingContact2Ref = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLElement>(null);
-  const footerHeroRef = useRef<HTMLDivElement>(null);
   const footerContentRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const toggleMenu = () => {
@@ -77,7 +75,7 @@ export default function Contact() {
   useEffect(() => {
     // Wait for page transition to complete before mounting
     const checkTransition = () => {
-      if (!(window as any).pageTransitioning) {
+      if (!(window as Window & { pageTransitioning?: boolean }).pageTransitioning) {
         setMounted(true);
       } else {
         setTimeout(checkTransition, 100);
@@ -314,7 +312,7 @@ export default function Contact() {
       
       // Footer content stagger
       const validFooterContent = footerContentRef.current.filter(Boolean);
-      validFooterContent.forEach((content, index) => {
+      validFooterContent.forEach((content) => {
         gsap.set(content, { y: 60, opacity: 0 });
         gsap.to(content, {
           y: 0,
@@ -603,7 +601,7 @@ export default function Contact() {
                   </h2>
                   <div className="w-24 h-1 bg-black mt-6"></div>
                   <p ref={formDescRef} className="text-base lg:text-lg font-medium mt-6 text-gray-700 max-w-2xl">
-                    Have a question about our collection? Interested in collaborating? Planning a visit? We'd love to hear from you.
+                    Have a question about our collection? Interested in collaborating? Planning a visit? We&apos;d love to hear from you.
                   </p>
                 </div>
 
@@ -745,7 +743,7 @@ export default function Contact() {
               <div ref={(el) => { footerContentRef.current[0] = el; }}>
                 <h3 className="text-xl md:text-2xl font-normal mb-8">Menu</h3>
                 <nav className="space-y-4">
-                  <a href="/" className="block text-lg font-light hover:translate-x-2 transition-all duration-300">Home</a>
+                  <Link href="/" className="block text-lg font-light hover:translate-x-2 transition-all duration-300">Home</Link>
                   <a href="#exhibitions" className="block text-lg font-light hover:translate-x-2 transition-all duration-300">Exhibitions</a>
                   <a href="#collections" className="block text-lg font-light hover:translate-x-2 transition-all duration-300">Collections</a>
                   <a href="#visit" className="block text-lg font-light hover:translate-x-2 transition-all duration-300">Visit</a>

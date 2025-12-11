@@ -33,7 +33,7 @@ export default function About() {
 
   useEffect(() => {
     const checkTransition = () => {
-      if (!(window as any).pageTransitioning) {
+      if (!(window as Window & { pageTransitioning?: boolean }).pageTransitioning) {
         setMounted(true);
       } else {
         setTimeout(checkTransition, 100);
@@ -334,7 +334,7 @@ export default function About() {
         <section ref={storyRef} className="px-6 py-32 bg-black text-white -mx-6 sm:-mx-10 lg:-mx-16 mb-32 opacity-0">
           <div className="max-w-6xl mx-auto">
             <p className="text-3xl md:text-5xl lg:text-6xl font-light leading-tight mb-12">
-              Since 1985, we've been redefining what a museum can be—
+              Since 1985, we&apos;ve been redefining what a museum can be—
               <span className="italic font-normal"> not just a space to view art, but a living, breathing ecosystem where creativity thrives.</span>
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 border-t border-white/20">
@@ -384,10 +384,10 @@ export default function About() {
               </h2>
               <p className="text-lg font-light leading-relaxed mb-6">
                 What began as a rebellious 500 sq ft gallery in downtown SoHo has transformed into 
-                a 50,000 sq ft cultural landmark. We didn't follow the rules—we rewrote them.
+                a 50,000 sq ft cultural landmark. We didn&apos;t follow the rules—we rewrote them.
               </p>
               <p className="text-lg font-light leading-relaxed">
-                Today, we house one of North America's most progressive contemporary art collections, 
+                Today, we house one of North America&apos;s most progressive contemporary art collections, 
                 spanning sculpture, digital art, installations, and immersive experiences.
               </p>
             </div>
@@ -525,7 +525,7 @@ export default function About() {
               <div className="absolute top-0 right-0 text-[12rem] font-bold opacity-5 leading-none select-none">01</div>
               <h3 className="text-3xl font-bold mb-4 relative z-10">Access for All</h3>
               <p className="text-lg font-light leading-relaxed relative z-10">
-                Art shouldn't be exclusive. We break down barriers—free admission days, 
+                Art shouldn&apos;t be exclusive. We break down barriers—free admission days, 
                 multilingual guides, sensory-friendly hours, and community partnerships.
               </p>
             </div>
@@ -552,7 +552,7 @@ export default function About() {
               <div className="absolute top-0 right-0 text-[12rem] font-bold opacity-5 leading-none select-none">04</div>
               <h3 className="text-3xl font-bold mb-4 relative z-10">Living Community</h3>
               <p className="text-lg font-light leading-relaxed relative z-10">
-                More than a museum—we're a gathering space. Artist talks, workshops, 
+                More than a museum—we&apos;re a gathering space. Artist talks, workshops, 
                 late-night events, and collaborations that spark connection.
               </p>
             </div>

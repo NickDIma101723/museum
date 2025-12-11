@@ -12,23 +12,23 @@ export default function PageTransition() {
     // Skip transition on first render (initial page load)
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      (window as any).pageTransitioning = false;
+      (window as Window & { pageTransitioning?: boolean }).pageTransitioning = false;
       return;
     }
 
     // Only show transition when going TO contact page
     if (pathname === "/contact") {
-      (window as any).pageTransitioning = true;
+      (window as Window & { pageTransitioning?: boolean }).pageTransitioning = true;
       setIsTransitioning(true);
       
       const timeout = setTimeout(() => {
         setIsTransitioning(false);
-        (window as any).pageTransitioning = false;
+        (window as Window & { pageTransitioning?: boolean }).pageTransitioning = false;
       }, 2000);
 
       return () => clearTimeout(timeout);
     } else {
-      (window as any).pageTransitioning = false;
+      (window as Window & { pageTransitioning?: boolean }).pageTransitioning = false;
     }
   }, [pathname]);
 
