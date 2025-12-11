@@ -103,7 +103,6 @@ export default function WaveLoading({ onComplete }: WaveLoadingProps) {
       // Wait longer before deleting "XXXX" and typing "MUSEUM"
       .to({}, { duration: 4.5 })
       .call(() => {
-        let currentText = 'A MODERN ';
         // Show cursor and delete only "XXXX" part
         setShowCursor(true);
         let deleteCount = 0;
