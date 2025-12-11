@@ -14,21 +14,26 @@ export default function WaveLoading({ onComplete }: WaveLoadingProps) {
   const barsRef = useRef<(HTMLDivElement | null)[]>([]);
   const [currentText, setCurrentText] = useState('');
   const [displayText, setDisplayText] = useState('');
-  const [showCursor, setShowCursor] = useState(true);
+  const [showCursor, setShowCursor] = useState(false);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
       
+      // Set initial states immediately
+      gsap.set(textRef.current, { opacity: 0, y: 20 });
+      gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left" });
+      
       // Start with completely empty text
       tl.call(() => {
         setDisplayText(''); // Clear any initial text
+        setShowCursor(false); // Start without cursor
       })
       
       // Smooth fade in of text container
-      .from(textRef.current, {
-        opacity: 0,
-        y: 20,
+      .to(textRef.current, {
+        opacity: 1,
+        y: 0,
         duration: 0.8,
         ease: "power2.out"
       })
@@ -159,15 +164,22 @@ export default function WaveLoading({ onComplete }: WaveLoadingProps) {
       tl.to({}, { duration: 3.0 })
       .call(onComplete);
       
-      // Wave bars slide up from right to left
+      // Change bars to white and make them wave down from top
       barsRef.current.forEach((bar, i) => {
         if (bar) {
-          const reverseIndex = barsRef.current.length - 1 - i;
+          // Make bars white and position them above screen
+          gsap.set(bar, { backgroundColor: 'white', y: '-100%' });
+          
+          // Wave down from center outward
+          const totalBars = barsRef.current.length;
+          const center = totalBars / 2;
+          const distanceFromCenter = Math.abs(i - center);
+          
           tl.to(bar, {
-            y: '-100%',
+            y: '100%', // Come down past the screen
             duration: 1.2,
             ease: "power2.out"
-          }, reverseIndex * 0.12);
+          }, distanceFromCenter * 0.1);
         }
       });
       
@@ -192,7 +204,7 @@ export default function WaveLoading({ onComplete }: WaveLoadingProps) {
         <div className="relative">
           <div
             ref={textRef}
-            className="text-white text-7xl md:text-9xl lg:text-[8rem] xl:text-[10rem] font-bold tracking-wider"
+            className="text-white text-7xl md:text-9xl lg:text-[8rem] xl:text-[10rem] font-bold tracking-wider opacity-0"
           >
             {displayText}
             {showCursor && <span className="inline-block ml-2">|</span>}
@@ -200,8 +212,8 @@ export default function WaveLoading({ onComplete }: WaveLoadingProps) {
           {/* Cutting line */}
           <div
             ref={lineRef}
-            className="absolute top-1/2 left-0 w-full h-0.5 bg-white transform -translate-y-1/2"
-            style={{ transform: 'translateY(-50%) scaleX(0)' }}
+            className="absolute top-1/2 left-0 w-full h-0.5 bg-white"
+            style={{ transform: 'translateY(-50%) scaleX(0)', transformOrigin: 'left' }}
           />
         </div>
       </div>

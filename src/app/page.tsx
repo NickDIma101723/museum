@@ -2,10 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "@studio-freight/lenis";
 import Navbar from "@/components/Navbar";
 import GalleryItem from "@/components/GalleryItem";
 import WaveLoading from "@/components/WaveLoading";
+
+gsap.registerPlugin(ScrollTrigger);
 
 
 export default function Home() {
@@ -28,6 +31,13 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
+    
+    // Check if this is the first visit
+    const hasVisited = sessionStorage.getItem('hasVisited');
+    if (hasVisited) {
+      // Already visited - skip loading screen
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -69,11 +79,30 @@ export default function Home() {
   // Hero text refs
   const heroTitleRef = useRef<HTMLHeadingElement>(null);
   const heroDescRef = useRef<HTMLParagraphElement>(null);
+  
+  // Split image refs - three layers
+  const splitImageContainerRef = useRef<HTMLDivElement>(null);
+  const imageTopRef = useRef<HTMLDivElement>(null);
+  const imageMiddleRef = useRef<HTMLDivElement>(null);
+  const imageBottomRef = useRef<HTMLDivElement>(null);
 
-  // Lenis smooth scroll
+  // Enable scroll on home page
   useEffect(() => {
     if (!mounted) return;
     
+    // Allow scrolling on the body
+    document.body.style.overflow = 'auto';
+    
+    return () => {
+      // Clean up
+      document.body.style.overflow = 'auto';
+    };
+  }, [mounted]);
+
+  // Lenis smooth scroll
+  useEffect(() => {
+    if (!mounted || isLoading) return;
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -87,10 +116,13 @@ export default function Home() {
 
     requestAnimationFrame(raf);
 
+    // Connect Lenis with GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+
     return () => {
       lenis.destroy();
     };
-  }, [mounted]);
+  }, [mounted, isLoading]);
 
   useEffect(() => {
     if (!mounted || isLoading) return;
@@ -218,6 +250,8 @@ export default function Home() {
         ease: "power2.out",
         transformOrigin: "right"
       });
+
+      // No animation - just display the image
     });
 
     return () => ctx.revert();
@@ -226,7 +260,10 @@ export default function Home() {
   return (
     <>
       {/* Wave Loading Screen */}
-      {isLoading && <WaveLoading onComplete={() => setIsLoading(false)} />}
+      {isLoading && <WaveLoading onComplete={() => {
+        setIsLoading(false);
+        sessionStorage.setItem('hasVisited', 'true');
+      }} />}
       
       {/* White background until loading completes */}
       {isLoading && <div className="fixed inset-0 bg-white z-[9998]" />}
@@ -309,7 +346,7 @@ export default function Home() {
       {/* Main content area */}
       <div className="ml-12 mr-12 sm:ml-16 sm:mr-16">
       {/* Hero Section */}
-      <section className="min-h-screen flex flex-col justify-center px-12 md:px-20 lg:px-32">
+      <section className="h-screen flex flex-col justify-center px-12 md:px-20 lg:px-32">
         <div ref={heroTitleRef} className="space-y-8">
           <div className="overflow-hidden">
             <h1 className="text-8xl md:text-9xl lg:text-[12rem] xl:text-[14rem] font-bold leading-[0.9] text-black">
@@ -330,6 +367,21 @@ export default function Home() {
         </div>
       </section>
       </div>
+
+      {/* Image Section */}
+      <section 
+        ref={splitImageContainerRef} 
+        className="min-h-screen flex items-center justify-center py-20"
+      >
+        <div className="relative w-full h-[60vh] border-4 border-black">
+          <img 
+            src="https://images.unsplash.com/photo-1578926288207-a90a5366759d?w=2400&h=1600&fit=crop&q=80"
+            alt="Museum art"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center' }}
+          />
+        </div>
+      </section>
       </div>
     </>
   );
